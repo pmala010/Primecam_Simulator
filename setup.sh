@@ -22,6 +22,11 @@ else
   cd -
 fi
 
+# Install pyenv-virtualenv
+if [ ! -d "${PYENV_ROOT}/plugins/pyenv-virtualenv" ]; then
+  git clone https://github.com/pyenv/pyenv-virtualenv.git "${PYENV_ROOT}/plugins/pyenv-virtualenv"
+fi
+
 # Add pyenv to path
 export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init --path)"
