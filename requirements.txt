@@ -1,7 +1,7 @@
 # Direct Git dependencies
 fgspectra @ git+https://github.com/simonsobs/fgspectra@cd78a3a72274dac2b9e05bef1943370807c46146
 so_noise_models @ git+https://github.com/simonsobs/so_noise_models.git@fac881eb5ee012673d8994443caa3c6ad7fac2b6
-
+sensitivity_calculator @ git+https://github.com/ccatp/Sensitivity-Calculator.git@main
 # Core scientific stack
 numpy==1.26.4
 scipy==1.14.1
