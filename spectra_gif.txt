@@ -1,5 +1,22 @@
 from matplotlib.animation import FuncAnimation, PillowWriter
 
+def get_mock_data_for_freq_pair(mock_data, f1, f2):
+    # Build the same freq_pairs and pair_index mapping
+    pair_index = {}
+    k = 0
+    for i in range(n_freq):
+        for j in range(i, n_freq):
+            pair_index[(i, j)] = k
+            pair_index[(j, i)] = k  # symmetry
+            k += 1
+    n_pairs = k  # total number of pairs
+    
+    # Get the index for the pair
+    idx = pair_index[(f1, f2)]
+    
+    # Extract the slice for this pair from the flattened mock data
+    return mock_data[idx::n_pairs][:n_bins]
+
 ncols = 3
 nrows = int(np.ceil(n_freq / ncols))
 fig, axs = plt.subplots(nrows=nrows, ncols=ncols, figsize=(5 * ncols, 4 * nrows))
