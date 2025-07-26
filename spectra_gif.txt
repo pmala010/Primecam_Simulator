@@ -1,0 +1,81 @@
+from matplotlib.animation import FuncAnimation, PillowWriter
+
+ncols = 3
+nrows = int(np.ceil(n_freq / ncols))
+fig, axs = plt.subplots(nrows=nrows, ncols=ncols, figsize=(5 * ncols, 4 * nrows))
+axs = axs.flatten()  # Flatten in case it's a 2D array
+
+
+
+# Generate mock data vector from fiducial model
+signal = np.zeros((n_bins, n_pairs))
+for s in range(n_fore):
+    for i, (f1, f2) in enumerate(freq_pairs):
+        signal[:, i] += fg_signal_fid[s][f1, f2]
+mock_data = np.random.multivariate_normal(mean=signal.flatten(), cov=cov_total_full)
+
+means = []
+
+def animate(j):
+
+    truths = np.array(var_par_truths) 
+    var_par_noisy = truths + np.random.normal(loc=0.0, scale=1, size=truths.shape)
+    var_par = dict(zip(var_par_names, var_par_noisy))
+    
+    thisfg = rebin(get_fg_model(centerfreqs,ells, fixed_par | var_par_fid))
+
+    mock_data = np.random.multivariate_normal(mean=signal.flatten(), cov=cov_total_full)
+    # mock_data_2d = mock_data.reshape(n_bins,n_pairs)
+    # mock_autospectra = []
+    # cov_autospectra = []
+    # for p in [pair_index[(f, f)] for f in range(n_freq)]:
+    #     mock_autospectra.append(mock_data_2d[:,p])
+    #     cov_autospectra.append(cov_total_full[:,p])
+
+
+    for f in range(n_freq):
+        sumfg = np.zeros_like(range(n_bins), dtype=np.float64)
+        ax = axs[f]
+        ax.clear()
+
+        for s in range(n_fore):
+            #ax.plot(thisfg[s][(f,f)], label=spectra_labels[s], color=dcolors[s])
+            sumfg += thisfg[s][(f,f)]
+        
+        
+        ax.plot(ell_bin,sumfg, label="sum", linestyle='-',color='Black')
+
+        ax.plot(ell_bin, N_b[f], label="D_l noise", linestyle='--',color='Black')
+
+        idx = pair_index[(f, f)]
+        start = idx * n_bins
+        end = (idx + 1) * n_bins
+
+        variance_marginal = np.diag(cov_total_full[start:end, start:end])
+
+        error = np.sqrt(variance_marginal)
+        err = np.sqrt(2 / ((2*ell_bin+1)*(2*band)*fsky[f]))*(sumfg+N_b[f])
+        #ax.plot(ell_bin,err-error, linestyle='-',color='Black')
+        ax.errorbar(ell_bin,sumfg,err,fmt='o',markersize=1, color="blue")
+        ax.errorbar(ell_bin,sumfg,error,fmt='o',markersize=1, color="lightblue")
+        #ax.errorbar(ell_bin,sumfg,cov_autospectra[f],fmt='o',markersize=1, color="green")
+
+        ax.plot(ell_bin,get_mock_data_for_freq_pair(mock_data,f,f), label="mock data", linestyle='--',color='Red')
+
+
+        #ax.legend(loc = 'upper right')
+        ax.set_yscale('log')
+        #ax.set_xlim(100,2000)
+        ax.set_ylim(10e-6,10e15)
+        #ax.set_ylim(1e11,9e11)
+        ax.set_title(f"{centerfreqs[f]}GHz")
+        ax.set_box_aspect(1)
+
+    #plt.show()
+    #print(f"loaded plot {j}")
+    return()
+
+ani = FuncAnimation(fig, animate, repeat=True, frames=30, interval=50)
+# To save the animation using Pillow as a gif
+writer = PillowWriter(fps=10,metadata=dict(artist='Me'),bitrate=1800)
+ani.save('test1.gif', writer=writer)
